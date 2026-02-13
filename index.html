@@ -19,6 +19,102 @@
       justify-content: center;
       padding: 10px;
       position: relative;
+      overflow-x: hidden;
+    }
+    
+    /* Símbolos de quiz flutuantes no fundo */
+    .floating-symbols {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .symbol {
+      position: absolute;
+      font-size: 40px;
+      color: #ffd700;
+      opacity: 0.15;
+      animation: float 15s infinite linear;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    }
+    
+    /* Diferentes símbolos de quiz */
+    .symbol:nth-child(1) { top: 10%; left: 5%; animation-duration: 18s; font-size: 60px; content: "❓"; }
+    .symbol:nth-child(2) { top: 70%; left: 90%; animation-duration: 22s; font-size: 50px; content: "❓"; animation-delay: -2s; }
+    .symbol:nth-child(3) { top: 30%; left: 85%; animation-duration: 20s; font-size: 70px; content: "❗"; animation-delay: -5s; }
+    .symbol:nth-child(4) { top: 80%; left: 15%; animation-duration: 25s; font-size: 45px; content: "❓"; animation-delay: -8s; }
+    .symbol:nth-child(5) { top: 20%; left: 40%; animation-duration: 30s; font-size: 55px; content: "💡"; animation-delay: -12s; }
+    .symbol:nth-child(6) { top: 60%; left: 30%; animation-duration: 17s; font-size: 65px; content: "⭐"; animation-delay: -3s; }
+    .symbol:nth-child(7) { top: 40%; left: 60%; animation-duration: 28s; font-size: 50px; content: "📝"; animation-delay: -7s; }
+    .symbol:nth-child(8) { top: 15%; left: 75%; animation-duration: 19s; font-size: 80px; content: "🎓"; animation-delay: -10s; }
+    .symbol:nth-child(9) { top: 85%; left: 45%; animation-duration: 24s; font-size: 45px; content: "❓"; animation-delay: -15s; }
+    .symbol:nth-child(10) { top: 45%; left: 15%; animation-duration: 21s; font-size: 90px; content: "❗"; animation-delay: -4s; }
+    .symbol:nth-child(11) { top: 25%; left: 95%; animation-duration: 26s; font-size: 55px; content: "🧠"; animation-delay: -9s; }
+    .symbol:nth-child(12) { top: 55%; left: 70%; animation-duration: 23s; font-size: 60px; content: "📚"; animation-delay: -13s; }
+    .symbol:nth-child(13) { top: 5%; left: 20%; animation-duration: 29s; font-size: 40px; content: "🔍"; animation-delay: -6s; }
+    .symbol:nth-child(14) { top: 75%; left: 50%; animation-duration: 16s; font-size: 70px; content: "💭"; animation-delay: -11s; }
+    .symbol:nth-child(15) { top: 35%; left: 80%; animation-duration: 27s; font-size: 85px; content: "❓"; animation-delay: -14s; }
+    .symbol:nth-child(16) { top: 65%; left: 5%; animation-duration: 18s; font-size: 50px; content: "❗"; animation-delay: -1s; }
+    .symbol:nth-child(17) { top: 50%; left: 95%; animation-duration: 22s; font-size: 65px; content: "🎯"; animation-delay: -16s; }
+    .symbol:nth-child(18) { top: 95%; left: 25%; animation-duration: 20s; font-size: 75px; content: "✨"; animation-delay: -18s; }
+    .symbol:nth-child(19) { top: 18%; left: 55%; animation-duration: 24s; font-size: 45px; content: "❓"; animation-delay: -19s; }
+    .symbol:nth-child(20) { top: 88%; left: 75%; animation-duration: 26s; font-size: 55px; content: "💡"; animation-delay: -20s; }
+    
+    /* Animação de flutuação */
+    @keyframes float {
+      0% {
+        transform: translate(0, 0) rotate(0deg);
+      }
+      25% {
+        transform: translate(30px, 30px) rotate(15deg);
+      }
+      50% {
+        transform: translate(60px, 0) rotate(0deg);
+      }
+      75% {
+        transform: translate(30px, -30px) rotate(-15deg);
+      }
+      100% {
+        transform: translate(0, 0) rotate(0deg);
+      }
+    }
+    
+    /* Variações de animação para movimento mais orgânico */
+    .symbol:nth-child(3n) {
+      animation: floatAlt1 20s infinite linear;
+    }
+    
+    .symbol:nth-child(3n+1) {
+      animation: floatAlt2 25s infinite linear;
+    }
+    
+    .symbol:nth-child(3n+2) {
+      animation: floatAlt3 22s infinite linear;
+    }
+    
+    @keyframes floatAlt1 {
+      0% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(-40px, 20px) scale(1.1); }
+      66% { transform: translate(20px, 40px) scale(0.9); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+    
+    @keyframes floatAlt2 {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      50% { transform: translate(-30px, -30px) rotate(180deg); }
+      100% { transform: translate(0, 0) rotate(360deg); }
+    }
+    
+    @keyframes floatAlt3 {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(50px, -20px); }
+      50% { transform: translate(20px, 30px); }
+      75% { transform: translate(-40px, 10px); }
+      100% { transform: translate(0, 0); }
     }
     
     .quiz-container {
@@ -30,7 +126,7 @@
       box-shadow: 0 10px 20px rgba(0,0,0,0.1); /* Sombra cinza suave */
       border: 2px solid #ffd700; /* AMARELO */
       position: relative;
-      z-index: 1;
+      z-index: 2;
     }
     
     /* Header com "Quiz" centralizado */
@@ -295,12 +391,40 @@
         line-height: 35px;
         margin-right: 10px;
       }
+      
+      .symbol {
+        font-size: 30px !important;
+      }
     }
   </style>
   
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
+  <!-- Símbolos flutuantes de quiz -->
+  <div class="floating-symbols">
+    <div class="symbol">❓</div>
+    <div class="symbol">❓</div>
+    <div class="symbol">❗</div>
+    <div class="symbol">❓</div>
+    <div class="symbol">💡</div>
+    <div class="symbol">⭐</div>
+    <div class="symbol">📝</div>
+    <div class="symbol">🎓</div>
+    <div class="symbol">❓</div>
+    <div class="symbol">❗</div>
+    <div class="symbol">🧠</div>
+    <div class="symbol">📚</div>
+    <div class="symbol">🔍</div>
+    <div class="symbol">💭</div>
+    <div class="symbol">❓</div>
+    <div class="symbol">❗</div>
+    <div class="symbol">🎯</div>
+    <div class="symbol">✨</div>
+    <div class="symbol">❓</div>
+    <div class="symbol">💡</div>
+  </div>
+
   <div class="quiz-container">
     <div id="quizContent"></div>
   </div>
