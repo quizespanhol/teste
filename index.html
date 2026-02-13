@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; font-size: 20px; }
+    .quiz-container { max-width: 700px; margin: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1); position: relative; }
+    .question { font-size: 2.2em; margin-bottom: 20px; } 
+    .options button { display: block; width: 100%; text-align: left; background: #e0e0e0; border: none; margin: 10px 0; padding: 16px; border-radius: 8px; font-size: 1.2em; cursor: pointer; transition: background 0.3s; }
+    .options button.correct { background: #4CAF50 !important; color: white; }
+    .options button.incorrect { background: #F44336 !important; color: white; }
+    .options button:disabled { opacity: 0.7; cursor: not-allowed; }
+    .next-btn { margin-top: 15px; padding: 12px 24px; border: none; border-radius: 8px; background: #2196F3; color: white; cursor: pointer; font-size: 1.1em; }
+    #timer { font-size: 1.5em; font-weight: bold; color: #d9534f; margin-bottom: 15px; text-align: right; }
+    .loading-overlay {
+      position: absolute;
+      top:0; left:0; width:100%; height:100%;
+      background: rgba(255,255,255,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      color: #333;
+      border-radius: 12px;
+      z-index: 1000;
+      display: none;
+    }
+    .action-btn {
+      padding: 14px 30px;
+      border: none;
+      border-radius: 50px;
+      background: #FF5722;
+      color: white;
+      font-size: 1.3em;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: transform 0.2s, background 0.2s;
+    }
+    .action-btn:hover {
+      transform: scale(1.05);
+      background: #e64a19;
+    }
+    .action-btn.secondary {
+      background: #4CAF50;
+    }
+    .action-btn.secondary:hover {
+      background: #388e3c;
+    }
+    .result-banner {
+      text-align: center;
+      padding: 30px;
+      background: #eef9ff;
+      border-radius: 16px;
+      margin: 20px 0;
+    }
+    .nota-final {
+      font-size: 4em;
+      font-weight: bold;
+      color: #2196F3;
+      margin: 20px 0;
+    }
+    #participantName { 
+      width: 100%; 
+      padding: 12px; 
+      margin-bottom: 20px; 
+      font-size: 1.1em; 
+      border-radius: 8px; 
+      border: 1px solid #ccc; 
+    }
+    @keyframes fall {
+      0% { top: 40px; opacity: 1; }
+      100% { top: 80px; opacity: 0; }
+    }
+    .dica {
+      font-size: 0.9em;
+      color: #666;
+      margin-top: 5px;
+      font-style: italic;
+    }
+  </style>
+  
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+  <div class="quiz-container">
+    <div id="quiz"></div>
+    <div id="loading" class="loading-overlay">Carregando próxima questão...</div>
+  </div>
+
+  <script>
+    // Links (você pode alterar conforme necessário)
+    const shopeeLink = "https://s.shopee.com.br/70DpcjasH2";
+    const resultadosLink = "https://s.shopee.com.br/70DpcjasH2"; // Link para onde o botão VER RESULTADOS vai redirecionar
+
+    // ===== 10 PERGUNTAS SOBRE ESPANHOL PARA BRASILEIROS =====
+    // Foco em falsos cognatos e gramática básica
+    const questions = [
+      {
+        question: "Em espanhol, 'embarazada' significa:",
+        options: ["Com vergonha", "Grávida", "Atrapalhada", "Embaraçada"],
+        answer: 2,
+        dica: "🇧🇷 'Embaraçada' em português é 'avergonzada' em espanhol."
+      },
+      {
+        question: "Qual é o significado de 'coger' na maioria dos países hispânicos?",
+        options: ["Pegar", "Coçar", "Um sentido vulgar (pegar sexualmente)", "Cozinhar"],
+        answer: 3,
+        dica: "⚠️ Falso cognato perigoso! Em português 'pegar', em espanhol é um verbo com conotação sexual."
+      },
+      {
+        question: "'Exito' em espanhol quer dizer:",
+        options: ["Saída", "Êxito (sucesso)", "Exit", "Exercício"],
+        answer: 2,
+        dica: "✅ 'Êxito' em português é 'éxito' em espanhol, mas cuidado com 'salida' (saída)."
+      },
+      {
+        question: "Como se diz 'escritório' em espanhol?",
+        options: ["Escritorio", "Oficina", "Despacho", "Negocio"],
+        answer: 2,
+        dica: "⚠️ 'Escritorio' em espanhol é a mesa de trabalho. 'Oficina' é o local de trabalho."
+      },
+      {
+        question: "'Constipação' em espanhol significa:",
+        options: ["Constipação (intestino preso)", "Resfriado", "Prisão de ventre", "Constipação nasal"],
+        answer: 2,
+        dica: "🤧 'Estar constipado' é estar resfriado. Para intestino, use 'estreñimiento'."
+      },
+      {
+        question: "Qual a tradução correta de 'borracha' para o espanhol?",
+        options: ["Boracha", "Goma", "Caucho", "Borracha (igual)"],
+        answer: 2,
+        dica: "📝 'Boracha' não existe. 'Goma' é usado para borracha escolar e também chiclete."
+      },
+      {
+        question: "'Pelado' em espanhol pode significar:",
+        options: ["Pelado (sem roupa)", "Careca", "Descascado", "Pobre / sem dinheiro"],
+        answer: 4,
+        dica: "💰 Na gíria, 'estar pelado' é estar sem dinheiro. 'Calvo' é careca."
+      },
+      {
+        question: "Como se fala 'brincadeira' em espanhol?",
+        options: ["Brincadeira", "Broma", "Juego", "Diversión"],
+        answer: 2,
+        dica: "🎭 'Broma' é brincadeira no sentido de piada. 'Juego' é jogo."
+      },
+      {
+        question: "'Rato' em espanhol significa:",
+        options: ["Rato (animal)", "Momento / instante", "Rato de computador", "Ratazana"],
+        answer: 2,
+        dica: "⏱️ 'Un rato' é um momento. O animal é 'ratón'."
+      },
+      {
+        question: "Qual frase está gramaticalmente correta em espanhol?",
+        options: ["Me llamo es Juan", "Yo llamo Juan", "Me llamo Juan", "Mi llamo Juan"],
+        answer: 3,
+        dica: "🇪🇸 'Me llamo' é a forma correta de se apresentar. (Eu me chamo)"
+      }
+    ];
+
+    let current = 0;
+    let score = 0;
+    let answered = false;
+    let userAnswers = [];
+    let timer;
+    let timeLeft = 80;
+
+    function startTimer() {
+      clearInterval(timer);
+      timeLeft = 80;
+      const timerEl = document.getElementById("timer");
+      if (timerEl) timerEl.textContent = "⏳ Tempo: " + timeLeft + "s";
+      timer = setInterval(() => {
+        timeLeft--;
+        const timerEl = document.getElementById("timer");
+        if (timerEl) timerEl.textContent = "⏳ Tempo: " + timeLeft + "s";
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          userAnswers.push(0);
+          nextQuestion();
+        }
+      }, 1000);
+    }
+
+    function formatBoldQuotes(text) {
+      return text.replace(/"(.*?)"/g, '<b>"$1"</b>');
+    }
+
+    function showQuestion() {
+      answered = false;
+      const q = questions[current];
+      const formattedQuestion = formatBoldQuotes(q.question);
+      let html = `<div id="timer">⏳ Tempo: 80s</div>`;
+      html += `<div class="question">${current+1}. ${formattedQuestion}</div>`;
+      if (q.dica) {
+        html += `<div class="dica">💡 ${q.dica}</div>`;
+      }
+      html += `<div class="options">`;
+      q.options.forEach((opt, i) => {
+        html += `<button onclick="clickOption(${i+1})">${opt}</button>`;
+      });
+      html += '</div>';
+      document.getElementById('quiz').innerHTML = html;
+      startTimer();
+    }
+
+    function clickOption(selected) {
+      const loading = document.getElementById('loading');
+      loading.style.display = 'flex';
+
+      setTimeout(() => {
+        loading.style.display = 'none';
+        checkAnswer(selected);
+      }, 800); // Simula carregamento
+    }
+
+    function checkAnswer(selected) {
+      if(answered) return;
+      answered = true;
+      clearInterval(timer);
+
+      const correct = questions[current].answer;
+      const buttons = document.querySelectorAll('.options button');
+      buttons.forEach((b, i) => {
+        if (i+1 == correct) b.classList.add('correct');
+        else if (i+1 == selected) b.classList.add('incorrect');
+        b.disabled = true;
+      });
+
+      userAnswers.push(selected);
+      if (selected == correct) {
+        score++;
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, gravity: 0.3, ticks: 300 });
+      }
+
+      setTimeout(nextQuestion, 800);
+    }
+
+    function nextQuestion() {
+      current++;
+      if(current < questions.length) showQuestion();
+      else showFinalScreen();
+    }
+
+    // ========== TELA FINAL SIMPLIFICADA ==========
+    function showFinalScreen() {
+      // Efeito visual baseado na pontuação
+      if (score >= 7) {
+        confetti({ particleCount: 200, spread: 120, origin: { y: 0.5 } });
+      } else if (score >= 5) {
+        confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 } });
+      }
+
+      // Tela com a nota e o botão VER RESULTADOS que redireciona
+      let html = `
+        <div class="result-banner">
+          <h2 style="font-size: 2.5em; margin-bottom: 10px;">📋 QUIZ CONCLUÍDO!</h2>
+          <div class="nota-final">${score}/${questions.length}</div>
+          <p style="font-size: 1.3em; margin-bottom: 30px;">Sua pontuação final em espanhol</p>
+          
+          <button class="action-btn" onclick="redirectToResultados()">🔗 VER RESULTADOS</button>
+          <p style="margin-top: 20px; font-size: 1em; color: #666;">Clique para ver explicações detalhadas</p>
+        </div>
+      `;
+
+      // Botão FAZER OUTRA ETAPA (Shopee)
+      html += `<div style="text-align:center; margin: 20px 0;">
+        <button class="action-btn secondary" onclick="redirectToShopee()">🚀 FAZER OUTRA ETAPA</button>
+      </div>`;
+
+      // Campo de nome e botão enviar (para salvar resultados)
+      html += `<div style="text-align:center; margin-top: 30px; border-top: 2px dashed #aaa; padding-top: 20px;">
+        <input type="text" id="participantName" placeholder="Digite seu nome para salvar" style="width:80%; padding:12px; font-size:1.1em;"><br>
+        <button class="next-btn" onclick="sendResults()" style="margin-top:15px;">💾 ENVIAR RESPOSTAS</button>
+      </div>`;
+
+      document.getElementById('quiz').innerHTML = html;
+    }
+
+    // Redireciona para o site de resultados
+    function redirectToResultados() {
+      window.open(resultadosLink, '_blank');
+    }
+
+    // Redireciona para a Shopee (nova etapa)
+    function redirectToShopee() {
+      window.open(shopeeLink, '_blank');
+    }
+
+    // Função para enviar os resultados (simulação - adapte para sua planilha)
+    function sendResults() {
+      const participantName = document.getElementById('participantName').value.trim();
+      if(!participantName) {
+        alert("Digite seu nome antes de enviar.");
+        return;
+      }
+      
+      // Prepara os dados
+      const resultado = {
+        nome: participantName,
+        pontuacao: score,
+        total: questions.length,
+        data: new Date().toLocaleString('pt-BR')
+      };
+      
+      // Mostra loading
+      document.getElementById('loading').style.display = 'flex';
+      
+      // Simula envio (substitua por google.script.run se tiver backend)
+      setTimeout(() => {
+        document.getElementById('loading').style.display = 'none';
+        alert(`Obrigado ${participantName}! Sua pontuação ${score}/${questions.length} foi registrada.`);
+      }, 1000);
+      
+      console.log("Resultado:", resultado);
+    }
+
+    // Inicia o quiz
+    showQuestion();
+  </script>
+</body>
+</html>
